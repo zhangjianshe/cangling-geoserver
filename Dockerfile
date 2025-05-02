@@ -1,4 +1,4 @@
-FROM tomcat:9-jdk17
+FROM tomcat:9-jdk11
 
 WORKDIR /temp
 
