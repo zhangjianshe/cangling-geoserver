@@ -4,7 +4,12 @@ on:
   push:
     tags:
       - '*'
-
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag to use for Docker images'
+        required: false
+        default: 'manual-run'
 jobs:
 
   build-and-push:
