@@ -31,24 +31,16 @@ jobs:
 
     - name: Determine Docker Tag
       id: determine_tag
-      # Logic: Priority is 1. Manual Input, 2. Git Tag (normalized), 3. Empty.
+      # Logic: Use Git Tag (normalized by stripping 'v' prefix).
       run: |
-        TAG_NAME=""
-        MANUAL_INPUT="${{ github.event.inputs.tag_name }}"
-        REF_NAME="${{ GITHUB_REF_NAME }}"
+        TAG_NAME="${{ GITHUB_REF_NAME }}"
 
-        # 1. Use manual input if provided
-        if [[ -n "$MANUAL_INPUT" ]]; then
-          TAG_NAME="$MANUAL_INPUT"
-        # 2. Use pushed Git tag, normalizing it if it starts with 'v'
-        elif [[ -n "$REF_NAME" ]]; then
-          TAG_NAME="$REF_NAME"
-          if [[ $TAG_NAME == v* ]]; then
-            TAG_NAME=${TAG_NAME:1}
-          fi
+        # Normalize tag name: strip 'v' prefix if it exists (e.g., v2.28.0 -> 2.28.0)
+        if [[ $TAG_NAME == v* ]]; then
+          TAG_NAME=${TAG_NAME:1}
         fi
 
-        # Output the determined tag (could be empty string)
+        # Output the determined tag
         echo "IMAGE_TAG=$TAG_NAME" >> $GITHUB_OUTPUT
         echo "Determined primary tag: $TAG_NAME"
 
@@ -60,9 +52,9 @@ jobs:
         context: .
         file: ./Dockerfile
         push: true
-        # Tags: Always include SHA. Conditionally include the primary tag if it was determined.
+        # Tags: Include the determined tag and the commit SHA.
         tags: |
-          ${{ steps.determine_tag.outputs.IMAGE_TAG != '' && format('{0}/geoserver:{1}', secrets.DOCKER_USERNAME, steps.determine_tag.outputs.IMAGE_TAG) || '' }}
+          ${{ secrets.DOCKER_USERNAME }}/geoserver:${{ steps.determine_tag.outputs.IMAGE_TAG }}
           ${{ secrets.DOCKER_USERNAME }}/geoserver:${{ github.sha }}
         platforms: linux/amd64,linux/arm64
         # Add cache for faster rebuilds
