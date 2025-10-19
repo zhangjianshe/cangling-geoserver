@@ -31,7 +31,7 @@ jobs:
         id: determine_tag
         # Logic: Use Git Tag (normalized by stripping 'v' prefix).
         run: |
-          TAG_NAME="${{ GITHUB_REF_NAME }}"
+          TAG_NAME="${{ github.ref_name }}"  # available in Actions; safer than raw env
     
           # Normalize tag name: strip 'v' prefix if it exists (e.g., v2.28.0 -> 2.28.0)
           if [[ $TAG_NAME == v* ]]; then
