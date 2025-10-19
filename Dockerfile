@@ -1,7 +1,7 @@
 # ==============================================================================
 # 1. BUILDER STAGE: Download and Extract GeoServer WAR and Plugins
 # ==============================================================================
-FROM maven:3.9.5-openjdk-17 AS builder
+FROM eclipse-temurin:17-jdk-jammy AS builder
 
 # Set GeoServer version
 ENV GEOSERVER_VERSION 2.28.0
