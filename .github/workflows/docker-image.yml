@@ -11,6 +11,7 @@ jobs:
   build-and-push:
     runs-on: ubuntu-latest
 
+  # The 'steps' key must be correctly indented to be part of the job definition
   steps:
     - name: Checkout Code
       # Updated to v4 for better stability and features
