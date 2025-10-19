@@ -20,27 +20,44 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Login to Docker Registry
-        # Updated to v3
+      - name: Login to Primary Docker Registry
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
+      - name: Login to Harbor Registry (harbor.cangling.cn:22002)
+        uses: docker/login-action@v3
+        with:
+          registry: harbor.cangling.cn:22002
+          username: ${{ secrets.HARBOR_CANGLING_CN_NAME }}
+          password: ${{ secrets.HARBOR_CANGLING_CN_PASSWD }}
+
       - name: Determine Docker Tag
         id: determine_tag
         # Logic: Use Git Tag (normalized by stripping 'v' prefix).
         run: |
-          TAG_NAME="${{ github.ref_name }}"  # available in Actions; safer than raw env
-    
+          TAG_NAME="${{ github.ref_name }}"
+          
           # Normalize tag name: strip 'v' prefix if it exists (e.g., v2.28.0 -> 2.28.0)
+          # If the tag is 'latest', use '2.28.0' or the latest known stable version as the default build version.
           if [[ $TAG_NAME == v* ]]; then
-            TAG_NAME=${TAG_NAME:1}
+            # Strip 'v'
+            BUILD_VERSION=${TAG_NAME:1}
+          elif [[ $TAG_NAME == "latest" ]]; then
+            # Set a default version for the 'latest' tag build, or use a lookup.
+            # IMPORTANT: Hardcode the actual latest GeoServer version here if needed.
+            BUILD_VERSION="2.28.0" 
+          else
+            # Use the raw tag name for other tags (like commit SHA, if used outside of this trigger block)
+            BUILD_VERSION=$TAG_NAME
           fi
-    
-          # Output the determined tag
+
+          # Output the determined tags for build-push-action
           echo "IMAGE_TAG=$TAG_NAME" >> $GITHUB_OUTPUT
-          echo "Determined primary tag: $TAG_NAME"
+          # Output the determined version for the Dockerfile build argument
+          echo "GEOSERVER_VERSION=$BUILD_VERSION" >> $GITHUB_OUTPUT
+          echo "Determined primary tag: $TAG_NAME (Build version: $BUILD_VERSION)"
 
       - name: Build and Push GeoServer
         id: builder
@@ -50,10 +67,14 @@ jobs:
           context: .
           file: ./Dockerfile
           push: true
-          # Tags: Include the determined tag and the commit SHA.
+          # Pass the determined version to the Dockerfile as a build argument
+          build-args: GEOSERVER_VERSION_ARG=${{ steps.determine_tag.outputs.GEOSERVER_VERSION }}
+          # Tags: Include the determined tag and the commit SHA for BOTH registries.
           tags: |
             ${{ secrets.DOCKER_USERNAME }}/geoserver:${{ steps.determine_tag.outputs.IMAGE_TAG }}
             ${{ secrets.DOCKER_USERNAME }}/geoserver:${{ github.sha }}
+            harbor.cangling.cn:22002/cangling/geoserver:${{ steps.determine_tag.outputs.IMAGE_TAG }}
+            harbor.cangling.cn:22002/cangling/geoserver:${{ github.sha }}
           platforms: linux/amd64,linux/arm64
           # Add cache for faster rebuilds
           cache-from: type=gha
@@ -64,4 +85,3 @@ jobs:
         run: |
           echo "Successfully pushed image with the following tags:"
           echo "${{ steps.builder.outputs.tags }}"
-    
