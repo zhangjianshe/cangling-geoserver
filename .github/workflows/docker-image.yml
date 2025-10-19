@@ -10,61 +10,58 @@ jobs:
 
   build-and-push:
     runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
 
-  # The 'steps' key must be correctly indented to be part of the job definition
-  steps:
-    - name: Checkout Code
-      # Updated to v4 for better stability and features
-      uses: actions/checkout@v4
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
 
-    - name: Set up QEMU
-      uses: docker/setup-qemu-action@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v3
+      - name: Login to Docker Registry
+        # Updated to v3
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
 
-    - name: Login to Docker Registry
-      # Updated to v3
-      uses: docker/login-action@v3
-      with:
-        username: ${{ secrets.DOCKER_USERNAME }}
-        password: ${{ secrets.DOCKER_PASSWORD }}
+      - name: Determine Docker Tag
+        id: determine_tag
+        # Logic: Use Git Tag (normalized by stripping 'v' prefix).
+        run: |
+          TAG_NAME="${{ GITHUB_REF_NAME }}"
+    
+          # Normalize tag name: strip 'v' prefix if it exists (e.g., v2.28.0 -> 2.28.0)
+          if [[ $TAG_NAME == v* ]]; then
+            TAG_NAME=${TAG_NAME:1}
+          fi
+    
+          # Output the determined tag
+          echo "IMAGE_TAG=$TAG_NAME" >> $GITHUB_OUTPUT
+          echo "Determined primary tag: $TAG_NAME"
 
-    - name: Determine Docker Tag
-      id: determine_tag
-      # Logic: Use Git Tag (normalized by stripping 'v' prefix).
-      run: |
-        TAG_NAME="${{ GITHUB_REF_NAME }}"
+      - name: Build and Push GeoServer
+        id: builder
+        # Updated to v5
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          # Tags: Include the determined tag and the commit SHA.
+          tags: |
+            ${{ secrets.DOCKER_USERNAME }}/geoserver:${{ steps.determine_tag.outputs.IMAGE_TAG }}
+            ${{ secrets.DOCKER_USERNAME }}/geoserver:${{ github.sha }}
+          platforms: linux/amd64,linux/arm64
+          # Add cache for faster rebuilds
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
-        # Normalize tag name: strip 'v' prefix if it exists (e.g., v2.28.0 -> 2.28.0)
-        if [[ $TAG_NAME == v* ]]; then
-          TAG_NAME=${TAG_NAME:1}
-        fi
-
-        # Output the determined tag
-        echo "IMAGE_TAG=$TAG_NAME" >> $GITHUB_OUTPUT
-        echo "Determined primary tag: $TAG_NAME"
-
-    - name: Build and Push GeoServer
-      id: builder
-      # Updated to v5
-      uses: docker/build-push-action@v5
-      with:
-        context: .
-        file: ./Dockerfile
-        push: true
-        # Tags: Include the determined tag and the commit SHA.
-        tags: |
-          ${{ secrets.DOCKER_USERNAME }}/geoserver:${{ steps.determine_tag.outputs.IMAGE_TAG }}
-          ${{ secrets.DOCKER_USERNAME }}/geoserver:${{ github.sha }}
-        platforms: linux/amd64,linux/arm64
-        # Add cache for faster rebuilds
-        cache-from: type=gha
-        cache-to: type=gha,mode=max
-
-    - name: Output Docker Image Tags (for logging)
-      # Display the resulting tags for clarity in the run logs
-      run: |
-        echo "Successfully pushed image with the following tags:"
-        echo "${{ steps.builder.outputs.tags }}"
+      - name: Output Docker Image Tags (for logging)
+        # Display the resulting tags for clarity in the run logs
+        run: |
+          echo "Successfully pushed image with the following tags:"
+          echo "${{ steps.builder.outputs.tags }}"
     
