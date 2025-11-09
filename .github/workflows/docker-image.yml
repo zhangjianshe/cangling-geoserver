@@ -68,7 +68,7 @@ jobs:
           file: ./Dockerfile
           push: true
           # Pass the determined version to the Dockerfile as a build argument
-          build-args: GEOSERVER_VERSION_ARG=${{ steps.determine_tag.outputs.GEOSERVER_VERSION }}
+          build-args: GEOSERVER_VERSION_ARG=2.28.0
           # Tags: Include the determined tag and the commit SHA for BOTH registries.
           tags: |
             ${{ secrets.DOCKER_USERNAME }}/geoserver:${{ steps.determine_tag.outputs.IMAGE_TAG }}
