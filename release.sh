@@ -28,4 +28,4 @@ git add version.txt
 git commit -m "publish version $NEW_VERSION"
 git push
 git tag v$NEW_VERSION
-git push tag v$NEW_VERSION
+git push origin v$NEW_VERSION
