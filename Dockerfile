@@ -5,7 +5,7 @@ FROM eclipse-temurin:17-jdk-jammy AS builder
 
 # Set GeoServer version
 ENV GEOSERVER_VERSION 2.28.0
-ENV SOURCEFORGE_BASE_URL https://cyfuture.dl.sourceforge.net/project/geoserver
+ENV SOURCEFORGE_BASE_URL https://sf-west-interserver-1.dl.sourceforge.net/project/geoserver
 ENV PLUGIN_PREFIX_URL ${SOURCEFORGE_BASE_URL}/GeoServer/${GEOSERVER_VERSION}/extensions/geoserver-${GEOSERVER_VERSION}
 
 # Install necessary utilities (curl, unzip) and clean up apt cache
