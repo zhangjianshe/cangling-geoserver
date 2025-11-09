@@ -5,7 +5,7 @@ FROM eclipse-temurin:17-jdk-jammy AS builder
 
 # Set GeoServer version
 ENV GEOSERVER_VERSION 2.28.0
-ENV SOURCEFORGE_BASE_URL https://sf-west-interserver-1.dl.sourceforge.net/project/geoserver
+ENV SOURCEFORGE_BASE_URL https://sourceforge.net/projects/geoserver/files
 ENV PLUGIN_PREFIX_URL ${SOURCEFORGE_BASE_URL}/GeoServer/${GEOSERVER_VERSION}/extensions/geoserver-${GEOSERVER_VERSION}
 
 # Install necessary utilities (curl, unzip) and clean up apt cache
@@ -17,7 +17,7 @@ WORKDIR /temp
 
 # --- Download and Extract GeoServer WAR ---
 RUN echo "Downloading GeoServer WAR..." && \
-    curl -L ${SOURCEFORGE_BASE_URL}/GeoServer/${GEOSERVER_VERSION}/geoserver-${GEOSERVER_VERSION}-war.zip -o geoserver.zip \
+    curl -L ${SOURCEFORGE_BASE_URL}/GeoServer/${GEOSERVER_VERSION}/geoserver-${GEOSERVER_VERSION}-war.zip/download -o geoserver.zip \
     && unzip geoserver.zip -d . \
     && unzip geoserver.war -d geoserver \
     && rm geoserver.zip geoserver.war
@@ -88,7 +88,7 @@ RUN echo "Downloading and installing plugins..." && \
     mkdir -p /temp/plugins && \
     for p in ${PLUGINS}; do \
         PLUGIN_FILE=geoserver-${GEOSERVER_VERSION}-${p}-plugin.zip; \
-        PLUGIN_URL=${PLUGIN_PREFIX_URL}-${p}-plugin.zip; \
+        PLUGIN_URL=${PLUGIN_PREFIX_URL}-${p}-plugin.zip/download; \
         echo "--> Downloading ${PLUGIN_FILE}"; \
         # The curl -L flag is essential to follow the SourceForge redirect
         curl -L ${PLUGIN_URL} -o /temp/plugins/${PLUGIN_FILE} \
