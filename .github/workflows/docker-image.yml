@@ -75,7 +75,7 @@ jobs:
             ${{ secrets.DOCKER_USERNAME }}/geoserver:${{ github.sha }}
             harbor.cangling.cn:22002/cangling/geoserver:${{ steps.determine_tag.outputs.IMAGE_TAG }}
             harbor.cangling.cn:22002/cangling/geoserver:${{ github.sha }}
-          platforms: linux/amd64,linux/arm64
+          platforms: linux/amd64
           # Add cache for faster rebuilds
           cache-from: type=gha
           cache-to: type=gha,mode=max
