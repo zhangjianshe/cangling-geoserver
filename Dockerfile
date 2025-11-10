@@ -38,7 +38,6 @@ RUN echo "Downloading and installing plugins..." && \
         echo "--> Downloading ${PLUGIN_URL}"; \
         # The curl -L flag is essential to follow the SourceForge redirect
         curl -L ${PLUGIN_URL} -o /temp/plugins/${PLUGIN_FILE} \
-        && ls /temp/geoserver/WEB-INF/lib \
         # Extract the contents (the .jar files) into the GeoServer WEB-INF/lib
         && unzip -o /temp/plugins/${PLUGIN_FILE} -d /usr/local/tomcat/webapps/geoserver/WEB-INF/lib \
         # Cleanup the zip file immediately
