@@ -1,5 +1,4 @@
-FROM docker.io/kartoza/geoserver/2.28.0
-
+FROM docker.io/kartoza/geoserver:2.28.0
 # --- Data Directory Setup ---
 # Define the path for the data directory
 ARG DATA_DIR_PATH="/apps/geoserver/data_dir"
