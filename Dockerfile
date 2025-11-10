@@ -8,6 +8,7 @@ ENV GEOSERVER_VERSION=2.28.x
 ENV SOURCEFORGE_BASE_URL=https://build.geoserver.org/geoserver/${GEOSERVER_VERSION}
 ENV PLUGIN_PREFIX_URL=${SOURCEFORGE_BASE_URL}/ext-latest/geoserver-2.28-SNAPSHOT
 
+
 # Install necessary utilities (curl, unzip) and clean up apt cache
 RUN apt-get update && apt-get install -y --no-install-recommends unzip curl \
     && rm -rf /var/lib/apt/lists/* \
