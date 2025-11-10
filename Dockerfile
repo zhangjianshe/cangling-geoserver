@@ -67,6 +67,8 @@ ENV PLUGINS="\
     web-resource \
     wmts-multi-dimensional \
     ysld \
+    gdal \
+    wps \
 "
 
   #     wps-cluster-hazelcast \
