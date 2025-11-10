@@ -17,6 +17,35 @@ VOLUME [ "${GEOSERVER_DATA_DIR}" ]
 # NOTE: This assumes a local 'fonts' folder exists next to the Dockerfile
 COPY fonts/* /opt/java/openjdk/lib/fonts/
 
+## PLUGINS
+ENV PLUGINS="\
+    mongodb \
+"
+
+# Set GeoServer version
+ENV GEOSERVER_VERSION=2.28.x
+ENV SOURCEFORGE_BASE_URL=https://build.geoserver.org/geoserver/${GEOSERVER_VERSION}
+ENV PLUGIN_PREFIX_URL=${SOURCEFORGE_BASE_URL}/ext-latest/geoserver-2.28-SNAPSHOT
+
+
+# Loop through the list to download and extract each plugin directly into the
+# GeoServer WEB-INF/lib directory.
+RUN echo "Downloading and installing plugins..." && \
+    mkdir -p /temp/plugins && \
+    for p in ${PLUGINS}; do \
+        PLUGIN_FILE=${p}-plugin.zip; \
+        PLUGIN_URL=${PLUGIN_PREFIX_URL}-${p}-plugin.zip; \
+        echo "--> Downloading ${PLUGIN_URL}"; \
+        # The curl -L flag is essential to follow the SourceForge redirect
+        curl -L ${PLUGIN_URL} -o /temp/plugins/${PLUGIN_FILE} \
+        && ls /temp/geoserver/WEB-INF/lib \
+        # Extract the contents (the .jar files) into the GeoServer WEB-INF/lib
+        && unzip -o /temp/plugins/${PLUGIN_FILE} -d /usr/local/tomcat/webapps/geoserver/WEB-INF/lib \
+        # Cleanup the zip file immediately
+        && rm /temp/plugins/${PLUGIN_FILE}; \
+    done
+
+
 # Expose the standard Tomcat port
 EXPOSE 8080
 
