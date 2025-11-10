@@ -20,7 +20,7 @@ WORKDIR /temp
 RUN echo "Downloading GeoServer WAR..." && \
     curl -L ${SOURCEFORGE_BASE_URL}/geoserver-${GEOSERVER_VERSION}-latest-war.zip -o geoserver.zip \
     && unzip geoserver.zip -d . \
-    && unzip geoserver.war -d geoserver \
+    && unzip geoserver.war -d /temp/geoserver \
     && rm geoserver.zip geoserver.war \
     && ls -la geoserver
 
@@ -98,6 +98,7 @@ RUN echo "Downloading and installing plugins..." && \
         echo "--> Downloading ${PLUGIN_URL}"; \
         # The curl -L flag is essential to follow the SourceForge redirect
         curl -L ${PLUGIN_URL} -o /temp/plugins/${PLUGIN_FILE} \
+        && ls /temp/geoserver/WEB-INF/lib \
         # Extract the contents (the .jar files) into the GeoServer WEB-INF/lib
         && unzip -o /temp/plugins/${PLUGIN_FILE} -d /temp/geoserver/WEB-INF/lib \
         # Cleanup the zip file immediately
