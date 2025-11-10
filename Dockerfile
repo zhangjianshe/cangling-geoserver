@@ -17,7 +17,7 @@ WORKDIR /temp
 
 # --- Download and Extract GeoServer WAR ---
 RUN echo "Downloading GeoServer WAR..." && \
-    curl -L ${SOURCEFORGE_BASE_URL}/${GEOSERVER_VERSION}/geoserver-${GEOSERVER_VERSION}-latest-war.zip -o geoserver.zip \
+    curl -L ${SOURCEFORGE_BASE_URL}/geoserver-${GEOSERVER_VERSION}-latest-war.zip -o geoserver.zip \
     && unzip geoserver.zip -d . \
     && unzip geoserver.war -d geoserver \
     && rm geoserver.zip geoserver.war
