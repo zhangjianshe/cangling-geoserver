@@ -10,8 +10,6 @@ ENV PLUGIN_PREFIX_URL=${SOURCEFORGE_BASE_URL}/ext-latest/geoserver-2.28-SNAPSHOT
 
 # Install necessary utilities (curl, unzip) and clean up apt cache
 RUN apt-get update && apt-get install -y --no-install-recommends unzip curl \
-    gdal-bin \
-    libgdal-dev \
     && rm -rf /var/lib/apt/lists/* \
 
 # Temporary working directory for downloads and extraction
@@ -22,7 +20,8 @@ RUN echo "Downloading GeoServer WAR..." && \
     curl -L ${SOURCEFORGE_BASE_URL}/geoserver-${GEOSERVER_VERSION}-latest-war.zip -o geoserver.zip \
     && unzip geoserver.zip -d . \
     && unzip geoserver.war -d geoserver \
-    && rm geoserver.zip geoserver.war
+    && rm geoserver.zip geoserver.war \
+    && ls -la geoserver
 
 # --- Download and Extract Plugins ---
 # List of plugin short names (the part between GEOSERVER_VERSION and -plugin.zip)
@@ -110,8 +109,11 @@ RUN echo "Downloading and installing plugins..." && \
 # Use a lightweight official Tomcat image as the base for the final image.
 FROM tomcat:9.0-jdk17-temurin-jammy
 
-# Remove default Tomcat webapps for a clean install
-RUN rm -rf /usr/local/tomcat/webapps/*
+RUN apt-get update && apt-get install -y --no-install-recommends unzip curl  \
+        gdal-bin \
+        libgdal-dev \
+    && rm -rf /var/lib/apt/lists/* \
+    && rm -rf /usr/local/tomcat/webapps/*
 
 # --- Data Directory Setup ---
 # Define the path for the data directory
