@@ -5,6 +5,12 @@ ARG DATA_DIR_PATH="/apps/geoserver/data_dir"
 # Set the crucial GeoServer environment variable to point to that path
 ENV GEOSERVER_DATA_DIR ${DATA_DIR_PATH}
 
+RUN apt update && \
+    DEBIAN_FRONTEND=noninteractive apt install -y \
+        gdal-bin \
+        libsqlite3-mod-spatialite \
+    && rm -rf /var/lib/apt/lists/*
+
 # Create the directory, copy initial data, and declare the volume
 RUN mkdir -p ${GEOSERVER_DATA_DIR}
 # NOTE: This assumes a local 'data' folder exists next to the Dockerfile
@@ -23,8 +29,6 @@ ENV PLUGINS="\
     vectortiles \
     charts \
     ysld \
-    geofence \
-    geofence-server-postgres \
     gdal \
 "
 
