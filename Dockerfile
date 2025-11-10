@@ -1,4 +1,4 @@
-FROM docker.osgeo.org/geoserver:2.28.0-gdal
+FROM docker.io/kartoza/geoserver/2.28.0
 
 # --- Data Directory Setup ---
 # Define the path for the data directory
