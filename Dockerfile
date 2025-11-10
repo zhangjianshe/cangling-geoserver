@@ -20,6 +20,10 @@ COPY fonts/* /opt/java/openjdk/lib/fonts/
 ## PLUGINS
 ENV PLUGINS="\
     mongodb \
+    css \
+    vectortiles \
+    charts \
+    ysdl \
 "
 
 # Set GeoServer version
