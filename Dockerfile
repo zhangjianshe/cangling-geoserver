@@ -22,7 +22,7 @@ RUN echo "Downloading GeoServer WAR..." && \
     && unzip geoserver.zip -d . \
     && mkdir -p /temp/geoserver && unzip geoserver.war -d /temp/geoserver \
     && rm geoserver.zip geoserver.war \
-    && ls -la geoserver
+    && ls -la /temp/geoserver
 
 # --- Download and Extract Plugins ---
 # List of plugin short names (the part between GEOSERVER_VERSION and -plugin.zip)
