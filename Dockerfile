@@ -92,7 +92,7 @@ ENV PLUGINS="\
 RUN echo "Downloading and installing plugins..." && \
     mkdir -p /temp/plugins && \
     for p in ${PLUGINS}; do \
-        PLUGIN_FILE=geoserver-${GEOSERVER_VERSION}-SNAPSHOT-${p}-plugin.zip; \
+        PLUGIN_FILE=${p}-plugin.zip; \
         PLUGIN_URL=${PLUGIN_PREFIX_URL}-${p}-plugin.zip; \
         echo "--> Downloading ${PLUGIN_URL}"; \
         # The curl -L flag is essential to follow the SourceForge redirect
