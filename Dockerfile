@@ -1,4 +1,4 @@
-FROM docker.osgeo.org/geoserver:2.28.0-gdal
+FROM docker.osgeo.org/geoserver:2.27.1-gdal
 
 # --- Data Directory Setup ---
 # Define the path for the data directory
