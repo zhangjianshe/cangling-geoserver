@@ -24,8 +24,8 @@ ENV PLUGINS="\
     vectortiles \
     charts \
     ysld \
-    geofense \
-    geofense-server-postgres \
+    geofence \
+    geofence-server-postgres \
     gdal \
 "
 
