@@ -37,11 +37,6 @@ ENV PLUGINS="\
     dxf \
     excel \
     feature-pregeneralized \
-    gdal \
-    geofence \
-    geofence-server-h2 \
-    geofence-server-postgres \
-    geofence-wps \
     geopkg-output \
     grib \
     gwc-s3 \
@@ -56,31 +51,37 @@ ENV PLUGINS="\
     metadata \
     mongodb \
     monitor \
-    mysql \
-    netcdf-out \
-    netcdf \
     ogcapi-features \
     ogr-wfs \
     ogr-wps \
-    oracle \
     params-extractor \
     printing \
     pyramid \
     querylayer \
     rat \
     sldservice \
-    sqlserver \
     vectortiles \
     wcs2_0-eo \
     web-resource \
     wmts-multi-dimensional \
-    wps-cluster-hazelcast \
-    wps-download \
-    wps-excel \
-    wps-jdbc \
-    wps \
     ysld \
 "
+
+  #     wps-cluster-hazelcast \
+  #    wps-download \
+  #    wps-excel \
+  #    wps-jdbc \
+  #    wps \
+  #    mysql \
+  #    netcdf-out \
+  #    netcdf \
+  #    gdal \
+     #    geofence \
+     #    geofence-server-h2 \
+     #    geofence-server-postgres \
+     #    geofence-wps \
+     #    sqlserver \
+     #    oracle \
 
 # Loop through the list to download and extract each plugin directly into the
 # GeoServer WEB-INF/lib directory.
