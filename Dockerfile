@@ -23,7 +23,7 @@ ENV PLUGINS="\
     css \
     vectortiles \
     charts \
-    ysdl \
+    ysld \
 "
 
 # Set GeoServer version
