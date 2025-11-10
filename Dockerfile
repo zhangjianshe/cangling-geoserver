@@ -24,6 +24,9 @@ ENV PLUGINS="\
     vectortiles \
     charts \
     ysld \
+    geofense \
+    geofense-server-postgres \
+    gdal \
 "
 
 # Set GeoServer version
