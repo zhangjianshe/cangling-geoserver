@@ -45,7 +45,12 @@ RUN set -eu; \
             rm -f "${lib}/${prefix}-"*.jar; \
         done; \
         unzip -j -o "${zip}" '*.jar' -d "${lib}"; \
-    done
+    done; \
+    # kartoza ships every community/stable zip (~700MB). Keep only the four we unpack.
+    rm -rf /community_plugins; \
+    mkdir -p /community_plugins; \
+    find /stable_plugins -type f ! -name 'css-plugin.zip' ! -name 'mongodb-plugin.zip' \
+        ! -name 'charts-plugin.zip' ! -name 'ysld-plugin.zip' ! -name 'stable_plugins.txt' -delete
 
 
 # Expose the standard Tomcat port
