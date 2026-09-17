@@ -1,4 +1,10 @@
-FROM docker.io/kartoza/geoserver:2.28.0
+# Must match kartoza tag and GitHub build-arg GEOSERVER_VERSION_ARG (not 2.28.x nightlies).
+ARG GEOSERVER_VERSION_ARG=2.28.0
+FROM docker.io/kartoza/geoserver:${GEOSERVER_VERSION_ARG}
+
+ARG GEOSERVER_VERSION_ARG
+ENV GEOSERVER_VERSION=${GEOSERVER_VERSION_ARG}
+
 # --- Data Directory Setup ---
 # Define the path for the data directory
 ARG DATA_DIR_PATH="/apps/geoserver/data_dir"
@@ -22,36 +28,23 @@ VOLUME [ "${GEOSERVER_DATA_DIR}" ]
 # NOTE: This assumes a local 'fonts' folder exists next to the Dockerfile
 COPY fonts/* /opt/java/openjdk/lib/fonts/
 
-## PLUGINS
-ENV PLUGINS="\
-    mongodb \
-    css \
-    vectortiles \
-    charts \
-    ysld \
-    gdal \
-"
+# Extra plugins from the kartoza image's /stable_plugins (same 2.28.0 as the war).
+# Do not download 2.28.x SNAPSHOT zips: unzip -o leaves gs-foo-2.28.0.jar next to
+# gs-foo-2.28-SNAPSHOT.jar and GeoServer fails to start (vectortiles / MetaTilingOutputFormat).
+# vectortiles and gdal are already in the kartoza war — do not install again.
+ENV PLUGINS="mongodb css charts ysld"
 
-# Set GeoServer version
-ENV GEOSERVER_VERSION=2.28.x
-ENV SOURCEFORGE_BASE_URL=https://build.geoserver.org/geoserver/${GEOSERVER_VERSION}
-ENV PLUGIN_PREFIX_URL=${SOURCEFORGE_BASE_URL}/ext-latest/geoserver-2.28-SNAPSHOT
-
-
-# Loop through the list to download and extract each plugin directly into the
-# GeoServer WEB-INF/lib directory.
-RUN echo "Downloading and installing plugins..." && \
-    mkdir -p /temp/plugins && \
+RUN set -eu; \
+    lib=/usr/local/tomcat/webapps/geoserver/WEB-INF/lib; \
     for p in ${PLUGINS}; do \
-        PLUGIN_FILE=${p}-plugin.zip; \
-        PLUGIN_URL=${PLUGIN_PREFIX_URL}-${p}-plugin.zip; \
-        echo "--> Downloading ${PLUGIN_URL}"; \
-        # The curl -L flag is essential to follow the SourceForge redirect
-        curl -L ${PLUGIN_URL} -o /temp/plugins/${PLUGIN_FILE} \
-        # Extract the contents (the .jar files) into the GeoServer WEB-INF/lib
-        && unzip -o /temp/plugins/${PLUGIN_FILE} -d /usr/local/tomcat/webapps/geoserver/WEB-INF/lib \
-        # Cleanup the zip file immediately
-        && rm /temp/plugins/${PLUGIN_FILE}; \
+        zip=/stable_plugins/${p}-plugin.zip; \
+        if [ ! -f "${zip}" ]; then echo "missing ${zip}" >&2; exit 1; fi; \
+        echo "--> ${zip}"; \
+        unzip -Z -1 "${zip}" | grep '\.jar$' | while read -r jar; do \
+            prefix=$(basename "${jar}" | sed -E 's/(-[0-9].*)\.jar$//'); \
+            rm -f "${lib}/${prefix}-"*.jar; \
+        done; \
+        unzip -j -o "${zip}" '*.jar' -d "${lib}"; \
     done
 
 
